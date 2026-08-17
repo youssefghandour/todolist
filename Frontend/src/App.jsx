@@ -8,28 +8,135 @@ import TaskModal from "./components/TaskModal";
 import TaskDetailModal from "./components/TaskDetailModal";
 import { apiRequest, apiTaskToUiTask, uiFieldsToApiPayload } from "./api/taskApi";
 
+const mapStatusToApi = (statusFilter) => {
+  if (statusFilter === "Pending") return "pending";
+  if (statusFilter === "Completed") return "completed";
+  return "";
+};
+
+const mapPriorityToApi = (priorityFilter) => {
+  if (priorityFilter === "High") return "high";
+  if (priorityFilter === "Medium") return "medium";
+  if (priorityFilter === "Low") return "low";
+  return "";
+};
+
+const mapCategoryToApi = (categoryFilter) => {
+  if (categoryFilter === "Work") return "work";
+  if (categoryFilter === "Personal") return "personal";
+  if (categoryFilter === "Shopping") return "shopping";
+  if (categoryFilter === "Finance") return "finance";
+  if (categoryFilter === "Health") return "health";
+  if (categoryFilter === "Other") return "other";
+  return "";
+};
+
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-  });
-
   const [isDark, setIsDark] = useState(false);
-  useEffect(() => {
-    document.body.classList.toggle('dark-mode', isDark);
-  }, [isDark]);
-
-  /* ---------- Raw API-shaped tasks, keyed by id ----------
-     TaskDetailModal (Task edit.txt) expects the task straight from the API
-     (description / dueDate / status / category / priority / createdAt), not
-     the UI-normalized shape used elsewhere (desc / date / completed). Rather
-     than touch that component, we just keep both shapes in sync. */
-  const [rawTasksById, setRawTasksById] = useState({});
-
-  /* ---------- Load tasks from the API on mount ---------- */
   const [loadError, setLoadError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [taskDate, setTaskDate] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [rawTasksById, setRawTasksById] = useState({});
+  const [taskName, setTaskName] = useState("");
+  const [taskDesc, setTaskDesc] = useState("");
+  const [taskCategory, setTaskCategory] = useState("Select a category");
+  const [taskPriority, setTaskPriority] = useState("Select a priority");
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [priorityFilter, setPriorityFilter] = useState("All Priority");
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
+  const [sortOrder, setSortOrder] = useState("Newest First");
+  const [dashboard, setDashboard] = useState({
+    tasksCount: 0,
+    completed: 0,
+    pending: 0,
+    highTasks: 0
+  });
+
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const selectedTask = selectedTaskId ? rawTasksById[selectedTaskId] : null;
+
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", isDark);
+  }, [isDark]);
+
+  const fetchDashboard = async () => {
+    const data = await apiRequest("/dashboard");
+    setDashboard({
+      tasksCount: data.tasksCount || 0,
+      completed: data.completed || 0,
+      pending: data.pending || 0,
+      highTasks: data.highTasks || 0
+    });
+  };
+
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    setLoadError("");
+
+    try {
+      const params = new URLSearchParams();
+
+      if (searchQuery.trim()) params.set("search", searchQuery.trim());
+
+      const apiStatus = mapStatusToApi(statusFilter);
+      const apiPriority = mapPriorityToApi(priorityFilter);
+      const apiCategory = mapCategoryToApi(categoryFilter);
+
+      if (apiStatus) params.set("status", apiStatus);
+      if (apiPriority) params.set("priority", apiPriority);
+      if (apiCategory) params.set("category", apiCategory);
+      params.set("sortBy", sortOrder === "Oldest First" ? "oldest" : "newest");
+
+      const queryString = params.toString();
+      const data = await apiRequest(`/tasks${queryString ? `?${queryString}` : ""}`);
+      const rawList = data.tasks || [];
+      setTasks(rawList.map(apiTaskToUiTask));
+      setRawTasksById(Object.fromEntries(rawList.map((task) => [task.id, task])));
+    } catch (err) {
+      setLoadError(err.message || "Failed to load tasks.");
+      setTasks([]);
+      setRawTasksById({});
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDashboard() {
+      try {
+        const data = await apiRequest("/dashboard");
+        if (!cancelled) {
+          setDashboard({
+            tasksCount: data.tasksCount || 0,
+            completed: data.completed || 0,
+            pending: data.pending || 0,
+            highTasks: data.highTasks || 0
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err.message || "Failed to load dashboard data.");
+        }
+      }
+    }
+
+    loadDashboard();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -37,31 +144,40 @@ export default function App() {
       setIsLoading(true);
       setLoadError("");
       try {
-        const data = await apiRequest("/tasks", { method: "GET" });
+        const params = new URLSearchParams();
+        if (searchQuery.trim()) params.set("search", searchQuery.trim());
+
+        const apiStatus = mapStatusToApi(statusFilter);
+        const apiPriority = mapPriorityToApi(priorityFilter);
+        const apiCategory = mapCategoryToApi(categoryFilter);
+
+        if (apiStatus) params.set("status", apiStatus);
+        if (apiPriority) params.set("priority", apiPriority);
+        if (apiCategory) params.set("category", apiCategory);
+        params.set("sortBy", sortOrder === "Oldest First" ? "oldest" : "newest");
+
+        const data = await apiRequest(`/tasks${params.toString() ? `?${params.toString()}` : ""}`);
         if (!cancelled) {
           const rawList = data.tasks || [];
           setTasks(rawList.map(apiTaskToUiTask));
-          setRawTasksById(Object.fromEntries(rawList.map(t => [t.id, t])));
+          setRawTasksById(Object.fromEntries(rawList.map((task) => [task.id, task])));
         }
       } catch (err) {
-        if (!cancelled) setLoadError(err.message || "Failed to load tasks.");
+        if (!cancelled) {
+          setLoadError(err.message || "Failed to load tasks.");
+          setTasks([]);
+          setRawTasksById({});
+        }
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     }
 
     loadTasks();
-    return () => { cancelled = true; };
-  }, []);
-
-  /* ---------- Add task (POST /tasks) ---------- */
-  const [taskDate, setTaskDate] = useState("");
-  const [tasks, setTasks] = useState([]);
-  const [taskName, setTaskName] = useState("");
-  const [taskDesc, setTaskDesc] = useState("");
-  const [taskCategory, setTaskCategory] = useState("Select a category");
-  const [taskPriority, setTaskPriority] = useState("Select a priority");
-  const [isSaving, setIsSaving] = useState(false);
+    return () => {
+      cancelled = true;
+    };
+  }, [searchQuery, statusFilter, priorityFilter, categoryFilter, sortOrder]);
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -72,6 +188,10 @@ export default function App() {
     setTaskPriority("Select a priority");
   };
 
+  const refreshDashboardAndTasks = async () => {
+    await Promise.all([fetchDashboard(), fetchTasks()]);
+  };
+
   const handleAddTask = async (e) => {
     e.preventDefault();
     if (!taskName.trim()) return;
@@ -80,20 +200,19 @@ export default function App() {
       title: taskName.trim(),
       desc: taskDesc.trim(),
       date: taskDate,
-      category: taskCategory === 'Select a category' ? 'Personal' : taskCategory,
-      priority: taskPriority === 'Select a priority' ? 'Low' : taskPriority,
+      category: taskCategory === "Select a category" ? "Personal" : taskCategory,
+      priority: taskPriority === "Select a priority" ? "Low" : taskPriority,
       completed: false
     });
 
     setIsSaving(true);
     try {
-      const data = await apiRequest("/tasks", {
+      await apiRequest("/tasks", {
         method: "POST",
         body: JSON.stringify(payload)
       });
-      setTasks(prev => [apiTaskToUiTask(data.task), ...prev]);
-      setRawTasksById(prev => ({ ...prev, [data.task.id]: data.task }));
       closeModal();
+      await refreshDashboardAndTasks();
     } catch (err) {
       alert(err.message || "Failed to create task.");
     } finally {
@@ -101,56 +220,33 @@ export default function App() {
     }
   };
 
-  /* ---------- Toggle complete (PUT /tasks/:id) ---------- */
-
   const toggleTask = async (id) => {
-    const target = tasks.find(t => t.id === id);
+    const target = tasks.find((task) => task.id === id);
     if (!target) return;
 
     const nextCompleted = !target.completed;
     const nextStatus = nextCompleted ? "completed" : "pending";
-    // optimistic update
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: nextCompleted } : t));
-    setRawTasksById(prev => prev[id] ? { ...prev, [id]: { ...prev[id], status: nextStatus } } : prev);
 
     try {
       await apiRequest(`/tasks/${id}`, {
         method: "PUT",
         body: JSON.stringify({ status: nextStatus })
       });
+      await refreshDashboardAndTasks();
     } catch (err) {
-      // revert on failure
-      setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: target.completed } : t));
-      setRawTasksById(prev => prev[id] ? { ...prev, [id]: { ...prev[id], status: target.completed ? "completed" : "pending" } } : prev);
       alert(err.message || "Failed to update task.");
     }
   };
 
-  /* ---------- Delete task (DELETE /tasks/:id) ---------- */
-
   const deleteTask = async (id) => {
-    const previousTasks = tasks;
-    const previousRaw = rawTasksById;
-    setTasks(prev => prev.filter(t => t.id !== id));
-    setRawTasksById(prev => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-
     try {
       await apiRequest(`/tasks/${id}`, { method: "DELETE" });
-      setSelectedTaskId(current => current === id ? null : current);
+      setSelectedTaskId((currentId) => (currentId === id ? null : currentId));
+      await refreshDashboardAndTasks();
     } catch (err) {
-      setTasks(previousTasks);
-      setRawTasksById(previousRaw);
       alert(err.message || "Failed to delete task.");
     }
   };
-
-  /* ---------- Task detail modal (view / edit / delete a single task) ---------- */
-  const [selectedTaskId, setSelectedTaskId] = useState(null);
-  const selectedTask = selectedTaskId ? rawTasksById[selectedTaskId] : null;
 
   const handleUpdateTask = async (updatedTask) => {
     const payload = {
@@ -160,10 +256,10 @@ export default function App() {
       priority: updatedTask.priority,
       status: updatedTask.status
     };
+
     if (updatedTask.dueDate) {
-      // The edit form gives back a plain "YYYY-MM-DD" date; the API wants ISO.
       payload.dueDate = updatedTask.dueDate.length === 10
-        ? new Date(updatedTask.dueDate + "T00:00:00").toISOString()
+        ? new Date(`${updatedTask.dueDate}T00:00:00`).toISOString()
         : updatedTask.dueDate;
     }
 
@@ -172,9 +268,11 @@ export default function App() {
         method: "PUT",
         body: JSON.stringify(payload)
       });
+
       const savedRaw = data.task || { ...rawTasksById[updatedTask.id], ...payload };
-      setRawTasksById(prev => ({ ...prev, [savedRaw.id]: savedRaw }));
-      setTasks(prev => prev.map(t => t.id === savedRaw.id ? apiTaskToUiTask(savedRaw) : t));
+      setRawTasksById((prev) => ({ ...prev, [savedRaw.id]: savedRaw }));
+      setTasks((prev) => prev.map((task) => (task.id === savedRaw.id ? apiTaskToUiTask(savedRaw) : task)));
+      await fetchDashboard();
     } catch (err) {
       alert(err.message || "Failed to update task.");
     }
@@ -182,33 +280,23 @@ export default function App() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    const d = new Date(dateStr + 'T00:00:00');
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const parsed = new Date(`${dateStr}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return dateStr;
+    return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  /* ---------- Derived data ---------- */
-  const [statusFilter, setStatusFilter] = useState("All Status");
-  const [categoryFilter, setCategoryFilter] = useState("All Categories");
+  const visibleTasks = tasks.filter((task) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = !query || task.title.toLowerCase().includes(query) || (task.desc || "").toLowerCase().includes(query);
+    const matchesStatus = statusFilter === "All Status" || (statusFilter === "Completed" ? task.completed : !task.completed);
+    const matchesPriority = priorityFilter === "All Priority" || task.priority === priorityFilter;
+    const matchesCategory = categoryFilter === "All Categories" || task.category === categoryFilter;
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const pendingTasks = totalTasks - completedTasks;
-  const highPriorityTasks = tasks.filter(t => t.priority === "High").length;
-
-  const [priorityFilter, setPriorityFilter] = useState("All Priority");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("Newest First");
-
-  let visibleTasks = tasks.filter(t =>
-    (!searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.desc.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (statusFilter === "All Status" || (statusFilter === "Completed" ? t.completed : !t.completed)) &&
-    (priorityFilter === "All Priority" || t.priority === priorityFilter) &&
-    (categoryFilter === "All Categories" || t.category === categoryFilter)
-  );
+    return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
+  });
 
   if (sortOrder === "Oldest First") {
-    visibleTasks = [...visibleTasks].reverse();
+    visibleTasks.reverse();
   }
 
   return (
@@ -216,20 +304,20 @@ export default function App() {
       <Header
         currentDate={currentDate}
         isDark={isDark}
-        onToggleDark={() => setIsDark(!isDark)}
+        onToggleDark={() => setIsDark((current) => !current)}
       />
 
       {loadError && (
-        <div className="empty-state" style={{ color: '#dc2626', marginBottom: '1rem' }}>
+        <div className="empty-state" style={{ color: "#dc2626", marginBottom: "1rem" }}>
           {loadError}
         </div>
       )}
 
       <StatsRow
-        totalTasks={totalTasks}
-        completedTasks={completedTasks}
-        pendingTasks={pendingTasks}
-        highPriorityTasks={highPriorityTasks}
+        totalTasks={dashboard.tasksCount}
+        completedTasks={dashboard.completed}
+        pendingTasks={dashboard.pending}
+        highPriorityTasks={dashboard.highTasks}
       />
 
       <SearchBar
@@ -289,3 +377,4 @@ export default function App() {
     </div>
   );
 }
+

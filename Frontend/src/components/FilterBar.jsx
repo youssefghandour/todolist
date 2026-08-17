@@ -35,6 +35,7 @@ export default function FilterBar({
         <option>Shopping</option>
         <option>Finance</option>
         <option>Health</option>
+        <option>Other</option>
       </select>
 
       <select className="filter-select" value={sortOrder} onChange={(e) => onSortChange(e.target.value)}>

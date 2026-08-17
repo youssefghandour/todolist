@@ -3,7 +3,7 @@ import { useState } from 'react';
 function TaskModal({ task, onClose, onUpdate, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
+
   // State for tracking all editable fields
   const [editedTitle, setEditedTitle] = useState(task?.title || "");
   const [editedDescription, setEditedDescription] = useState(task?.description || "");
@@ -16,9 +16,9 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
 
   const handleSaveModalEdit = () => {
     if (!editedTitle.trim()) return;
-    onUpdate({ 
-      ...task, 
-      title: editedTitle, 
+    onUpdate({
+      ...task,
+      title: editedTitle,
       description: editedDescription,
       category: editedCategory,
       priority: editedPriority,
@@ -55,7 +55,7 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -70,13 +70,13 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
         {/* Conditional View: Full Edit Form vs Standard Details View */}
         {isEditing ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
+
             {/* Task Title */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Task Title <span style={{ color: '#dc2626' }}>*</span></label>
-              <input 
-                type="text" 
-                value={editedTitle} 
+              <input
+                type="text"
+                value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
                 style={{ padding: '10px', fontSize: '15px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%' }}
               />
@@ -85,8 +85,8 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
             {/* Description */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Description</label>
-              <textarea 
-                value={editedDescription} 
+              <textarea
+                value={editedDescription}
                 onChange={(e) => setEditedDescription(e.target.value)}
                 style={{ padding: '10px', fontSize: '14px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', width: '100%', resize: 'vertical', minHeight: '80px', outline: 'none' }}
               />
@@ -96,8 +96,8 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Category</label>
-                <select 
-                  value={editedCategory} 
+                <select
+                  value={editedCategory}
                   onChange={(e) => setEditedCategory(e.target.value)}
                   style={{ padding: '10px', fontSize: '14px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%', textTransform: 'capitalize' }}
                 >
@@ -111,13 +111,13 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Priority</label>
-                <select 
-                  value={editedPriority} 
+                <select
+                  value={editedPriority}
                   onChange={(e) => setEditedPriority(e.target.value)}
                   style={{ padding: '10px', fontSize: '14px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%', textTransform: 'capitalize' }}
                 >
                   <option value="low">Low</option>
-                  <option value="normal">Normal</option>
+                  <option value="medium">Medium</option>
                   <option value="high">High</option>
                 </select>
               </div>
@@ -127,17 +127,17 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Due Date <span style={{ color: '#dc2626' }}>*</span></label>
-                <input 
-                  type="date" 
-                  value={editedDueDate} 
+                <input
+                  type="date"
+                  value={editedDueDate}
                   onChange={(e) => setEditedDueDate(e.target.value)}
                   style={{ padding: '10px', fontSize: '14px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>Status</label>
-                <select 
-                  value={editedStatus} 
+                <select
+                  value={editedStatus}
                   onChange={(e) => setEditedStatus(e.target.value)}
                   style={{ padding: '10px', fontSize: '14px', color: '#1f2937', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', width: '100%', textTransform: 'capitalize' }}
                 >
@@ -149,13 +149,13 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
 
             {/* Edit Action Buttons */}
             <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-              <button 
+              <button
                 onClick={handleSaveModalEdit}
                 style={{ flex: 1, padding: '12px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '600', cursor: 'pointer' }}
               >
                 💾 Save Changes
               </button>
-              <button 
+              <button
                 onClick={() => setIsEditing(false)}
                 style={{ flex: 1, padding: '12px', backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db', borderRadius: '10px', fontWeight: '600', cursor: 'pointer' }}
               >
@@ -207,13 +207,13 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
                   ⚠️ Are you sure you want to delete this task? This cannot be undone.
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button 
+                  <button
                     onClick={() => onDelete(task.id)}
                     style={{ flex: 1, padding: '10px', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
                   >
                     Yes, Delete
                   </button>
-                  <button 
+                  <button
                     onClick={() => setShowDeleteConfirm(false)}
                     style={{ flex: 1, padding: '10px', backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
                   >
@@ -223,7 +223,7 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
               </div>
             ) : (
               <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-                <button 
+                <button
                   onClick={() => {
                     setIsEditing(true);
                     setShowDeleteConfirm(false);
@@ -232,7 +232,7 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
                 >
                   Edit Task
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setShowDeleteConfirm(true);
                     setIsEditing(false);
@@ -241,7 +241,7 @@ function TaskModal({ task, onClose, onUpdate, onDelete }) {
                 >
                   Delete Task
                 </button>
-                <button 
+                <button
                   onClick={onClose}
                   style={{ flex: 1, padding: '12px', backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db', borderRadius: '10px', fontWeight: '600', cursor: 'pointer' }}
                 >
