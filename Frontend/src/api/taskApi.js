@@ -1,6 +1,6 @@
 /* ---------- API config ---------- */
 
-export const API_BASE = "https://todolist-xi-pied-46.vercel.app/api/";
+export const API_BASE = "https://todolist-xi-pied-46.vercel.app/api";
 
 /* Convert an API task (status/priority/category lowercase, dueDate/description)
    into the shape the UI already uses (completed/priority/category Capitalized, date/desc) */
@@ -34,7 +34,10 @@ export function uiFieldsToApiPayload({ title, desc, date, category, priority, co
 }
 
 export async function apiRequest(path, options) {
-  const res = await fetch(API_BASE + path, {
+  const safePath = path === "/" ? "" : path.startsWith("/") ? path : `/${path}`;
+  const url = `${API_BASE}${safePath}`;
+
+  const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
     ...options
   });
