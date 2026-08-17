@@ -71,7 +71,7 @@ export default function App() {
   }, [isDark]);
 
   const fetchDashboard = async () => {
-    const data = await apiRequest("/dashboard");
+    const data = await apiRequest("/");
     setDashboard({
       tasksCount: data.tasksCount || 0,
       completed: data.completed || 0,
