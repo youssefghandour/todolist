@@ -15,7 +15,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5500',
 
-  'https://to-do-black-kappa.vercel.app'
+  'https://todolist-xi-pied-46.vercel.app/'
 ];
 
 app.use(cors({

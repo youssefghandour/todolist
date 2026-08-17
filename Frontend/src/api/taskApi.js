@@ -1,6 +1,6 @@
 /* ---------- API config ---------- */
 
-export const API_BASE = "https://to-do-black-kappa.vercel.app";
+export const API_BASE = "https://todolist-xi-pied-46.vercel.app/api/";
 
 /* Convert an API task (status/priority/category lowercase, dueDate/description)
    into the shape the UI already uses (completed/priority/category Capitalized, date/desc) */
