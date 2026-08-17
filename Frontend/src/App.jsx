@@ -117,7 +117,7 @@ export default function App() {
 
     async function loadDashboard() {
       try {
-        const data = await apiRequest("/dashboard");
+        const data = await apiRequest("/");
         if (!cancelled) {
           setDashboard({
             tasksCount: data.tasksCount || 0,
