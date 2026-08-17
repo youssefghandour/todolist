@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "builds": [
     {
       "src": "Frontend/package.json",
@@ -15,7 +15,7 @@
   ],
   "routes": [
     {
-      "src": "/tasks(.*)",
+      "src": "/api/(.*)",
       "dest": "/Backend/src/server.js"
     },
     {

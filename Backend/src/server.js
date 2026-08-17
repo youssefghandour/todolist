@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API Routes
-app.use("/", taskRoutes);
+app.use("/api", taskRoutes);
 
 // Only start a listening server when running locally (not on Vercel)
 if (process.env.VERCEL !== "1") {
