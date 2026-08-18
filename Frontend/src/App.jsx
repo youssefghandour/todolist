@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import Header from "./components/Header";
 import StatsRow from "./components/StatsRow";
 import SearchBar from "./components/SearchBar";
@@ -192,6 +193,7 @@ export default function App() {
 
       <Toast toasts={toasts} removeToast={removeToast} />
       <KeyboardShortcutsHelp />
+      <Analytics />
     </>
   );
 }
