@@ -13,6 +13,14 @@ export default function TaskModal({
   onSubmit,
   onClose
 }) {
+  const handleKeyDown = (e) => {
+    // Submit on Ctrl+Enter or Cmd+Enter
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      onSubmit(e);
+    }
+  };
+
   return (
     <div className="modal-overlay active" onClick={(e) => e.target.classList.contains('modal-overlay') && onClose()}>
       <div className="modal">
@@ -21,7 +29,7 @@ export default function TaskModal({
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
 
-        <form className="modal-form" onSubmit={onSubmit}>
+        <form className="modal-form" onSubmit={onSubmit} onKeyDown={handleKeyDown}>
           <label htmlFor="taskName">Task title</label>
           <input
             type="text"
@@ -80,7 +88,7 @@ export default function TaskModal({
 
           <div className="modal-actions">
             <button type="button" className="modal-cancel" onClick={onClose}>Cancel</button>
-            <button type="submit" className="modal-submit" disabled={isSaving}>
+            <button type="submit" className="modal-submit" disabled={isSaving} title="Or press Ctrl+Enter">
               {isSaving ? "Adding..." : "Add Task"}
             </button>
           </div>

@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import { connectDB, disconnectDB } from "./config/db.js";
 // Import Routes
 import taskRoutes from "./routes/taskRoutes.js";
+import { errorHandler } from "./utils/errorHandler.js";
 import cors from "cors";
 
 
@@ -37,6 +38,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use("/api", taskRoutes);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 // Only start a listening server when running locally (not on Vercel)
 if (process.env.VERCEL !== "1") {

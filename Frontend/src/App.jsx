@@ -10,6 +10,10 @@ import TaskDetailModal from "./components/TaskDetailModal";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskCrud } from "./hooks/useTaskCrud";
 import { useDashboard } from "./hooks/useDashboard";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import Toast from './components/Toast';
+import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
+import { useApp } from './context/AppContext';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -87,8 +91,32 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
+  const { openTaskModal, toasts, removeToast, addToast } = useApp();
+
+  useKeyboardShortcuts({
+    'ctrl+n': () => {
+      openTaskModal();
+    },
+    'escape': () => {
+      if (isModalOpen) {
+        closeModal();
+      }
+      if (selectedTaskId) {
+        setSelectedTaskId(null);
+      }
+    },
+    'delete': () => {
+      // Delete the currently selected task
+      if (selectedTaskId) {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+          deleteTask(selectedTaskId);
+        }
+      }
+    }
+  });
+
   return (
-    <div>
+    <>
       <Header
         currentDate={currentDate}
         isDark={isDark}
@@ -163,8 +191,14 @@ export default function App() {
         />
       )}
 
+      <Toast toasts={toasts} removeToast={removeToast} />
+      <KeyboardShortcutsHelp />
+    </>
       <Analytics />
     </div>
+      <Toast toasts={toasts} removeToast={removeToast} />
+      <KeyboardShortcutsHelp />
+    </>
   );
 }
 
