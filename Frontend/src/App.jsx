@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Header from "./components/Header";
 import StatsRow from "./components/StatsRow";
 import SearchBar from "./components/SearchBar";
@@ -194,6 +195,7 @@ export default function App() {
       <Toast toasts={toasts} removeToast={removeToast} />
       <KeyboardShortcutsHelp />
       <Analytics />
+      <SpeedInsights />
     </>
   );
 }
