@@ -9,6 +9,8 @@ import TaskDetailModal from "./components/TaskDetailModal";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskCrud } from "./hooks/useTaskCrud";
 import { useDashboard } from "./hooks/useDashboard";
+import Toast from './components/Toast';
+import { useApp } from './context/AppContext';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -86,8 +88,14 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
+  const { openTaskModal } = useApp();
+
+  useKeyboardShortcuts({
+    'ctrl+n': () => openTaskModal()
+  });
+
   return (
-    <div>
+    <>
       <Header
         currentDate={currentDate}
         isDark={isDark}
@@ -161,7 +169,9 @@ export default function App() {
           onDelete={deleteTask}
         />
       )}
-    </div>
+
+      <Toast toasts={toasts} removeToast={removeToast} />
+    </>
   );
 }
 
