@@ -60,7 +60,10 @@ body.dark-mode {
   --red-light: rgba(239, 68, 68, 0.16);
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -202,10 +205,25 @@ button, input, select, textarea {
   height: 20px;
 }
 
-.stat-icon.indigo { background: var(--indigo-light); color: var(--indigo); }
-.stat-icon.green { background: var(--green-light); color: var(--green); }
-.stat-icon.amber { background: var(--amber-light); color: var(--amber); }
-.stat-icon.red { background: var(--red-light); color: var(--red); }
+.stat-icon.indigo {
+  background: var(--indigo-light);
+  color: var(--indigo);
+}
+
+.stat-icon.green {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.stat-icon.amber {
+  background: var(--amber-light);
+  color: var(--amber);
+}
+
+.stat-icon.red {
+  background: var(--red-light);
+  color: var(--red);
+}
 
 .stat-title {
   color: var(--text-muted);
@@ -415,9 +433,20 @@ button, input, select, textarea {
   white-space: nowrap;
 }
 
-.task-tag.priority-High { background-color: var(--red-light); color: var(--red-dark); }
-.task-tag.priority-Medium { background-color: var(--amber-light); color: var(--amber-dark); }
-.task-tag.priority-Low { background-color: var(--green-light); color: var(--green-dark); }
+.task-tag.priority-High {
+  background-color: var(--red-light);
+  color: var(--red-dark);
+}
+
+.task-tag.priority-Medium {
+  background-color: var(--amber-light);
+  color: var(--amber-dark);
+}
+
+.task-tag.priority-Low {
+  background-color: var(--green-light);
+  color: var(--green-dark);
+}
 
 .task-delete {
   background: none;
@@ -430,6 +459,16 @@ button, input, select, textarea {
   border-radius: 6px;
 }
 
+.task-delete {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.task-card.hovered .task-delete,
+.task-delete.visible {
+  opacity: 1;
+}
+
 .task-delete:hover {
   color: var(--red-dark);
   background-color: var(--red-light);
@@ -439,6 +478,31 @@ button, input, select, textarea {
   width: 17px;
   height: 17px;
   display: block;
+}
+
+/* ---------- Drag and Drop ---------- */
+
+.task-card[draggable="true"] {
+  cursor: grab;
+  user-select: none;
+}
+
+.task-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  opacity: 0.5;
+  background-color: var(--indigo-light);
+  border-color: var(--indigo);
+  transform: scale(0.98);
+}
+
+.task-card.drag-over {
+  border-color: var(--indigo);
+  border-width: 2px;
+  background-color: var(--indigo-light);
+  box-shadow: inset 0 0 0 1px var(--indigo);
 }
 
 .empty-state {
@@ -484,8 +548,15 @@ button, input, select, textarea {
 }
 
 @keyframes modalPop {
-  from { transform: scale(0.96); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -590,12 +661,30 @@ button, input, select, textarea {
 /* ---------- Responsive ---------- */
 
 @media (max-width: 720px) {
-  .header, .stats-row, .search-bar, .filter-bar, .task-list {
+
+  .header,
+  .stats-row,
+  .search-bar,
+  .filter-bar,
+  .task-list {
     padding-left: 18px;
     padding-right: 18px;
   }
-  .subtitle { display: none; }
-  .search-bar { flex-wrap: wrap; }
-  .add-btn { width: 100%; justify-content: center; }
-  .field-grid { grid-template-columns: 1fr; }
+
+  .subtitle {
+    display: none;
+  }
+
+  .search-bar {
+    flex-wrap: wrap;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
 }

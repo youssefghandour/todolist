@@ -1,11 +1,40 @@
+import { useState } from "react";
 import Icon from "./Icons";
 
-export default function TaskCard({ task, formatDate, onToggle, onDelete, onSelect }) {
+export default function TaskCard({
+  task,
+  formatDate,
+  onToggle,
+  onDelete,
+  onSelect,
+  isDragging,
+  isDragOver,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(task.id);
+  };
+
   return (
     <div
-      className="task-card"
+      className={`task-card ${isDragging ? 'dragging' : ''} ${isDragOver ? 'drag-over' : ''} ${isHovered ? 'hovered' : ''}`}
       onClick={() => onSelect && onSelect(task.id)}
       style={{ cursor: onSelect ? 'pointer' : 'default' }}
+      draggable
+      onDragStart={(e) => onDragStart(e, task)}
+      onDragOver={(e) => onDragOver(e, task)}
+      onDragLeave={onDragLeave}
+      onDrop={(e) => onDrop(e, task)}
+      onDragEnd={onDragEnd}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <button
         className={`task-checkbox ${task.completed ? 'completed' : ''}`}
@@ -30,7 +59,12 @@ export default function TaskCard({ task, formatDate, onToggle, onDelete, onSelec
         </div>
       </div>
 
-      <button className="task-delete" onClick={(e) => { e.stopPropagation(); onDelete(task.id); }} aria-label="Delete task">
+      <button
+        className={`task-delete ${isHovered ? 'visible' : ''}`}
+        onClick={handleDelete}
+        title="Delete task (or press Delete key)"
+        aria-label="Delete task"
+      >
         {Icon.trash}
       </button>
     </div>

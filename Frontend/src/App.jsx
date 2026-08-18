@@ -9,7 +9,9 @@ import TaskDetailModal from "./components/TaskDetailModal";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskCrud } from "./hooks/useTaskCrud";
 import { useDashboard } from "./hooks/useDashboard";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import Toast from './components/Toast';
+import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import { useApp } from './context/AppContext';
 
 export default function App() {
@@ -88,10 +90,28 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
-  const { openTaskModal } = useApp();
+  const { openTaskModal, toasts, removeToast, addToast } = useApp();
 
   useKeyboardShortcuts({
-    'ctrl+n': () => openTaskModal()
+    'ctrl+n': () => {
+      openTaskModal();
+    },
+    'escape': () => {
+      if (isModalOpen) {
+        closeModal();
+      }
+      if (selectedTaskId) {
+        setSelectedTaskId(null);
+      }
+    },
+    'delete': () => {
+      // Delete the currently selected task
+      if (selectedTaskId) {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+          deleteTask(selectedTaskId);
+        }
+      }
+    }
   });
 
   return (
@@ -171,6 +191,7 @@ export default function App() {
       )}
 
       <Toast toasts={toasts} removeToast={removeToast} />
+      <KeyboardShortcutsHelp />
     </>
   );
 }

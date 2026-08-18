@@ -6,8 +6,10 @@ import {
     DEFAULT_CATEGORY_SELECT,
     DEFAULT_PRIORITY_SELECT,
 } from "../constants";
+import { useApp } from "../context/AppContext";
 
 export function useTaskCrud(onTasksChange) {
+    const { addToast } = useApp();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -49,10 +51,11 @@ export function useTaskCrud(onTasksChange) {
                 method: "POST",
                 body: JSON.stringify(payload),
             });
+            addToast("Task created successfully!", "success");
             closeModal();
             await onTasksChange();
         } catch (err) {
-            alert(err.message || "Failed to create task.");
+            addToast(err.message || "Failed to create task.", "error");
         } finally {
             setIsSaving(false);
         }
@@ -66,10 +69,11 @@ export function useTaskCrud(onTasksChange) {
                 method: "PUT",
                 body: JSON.stringify(payload),
             });
+            addToast("Task updated successfully!", "success");
             setSelectedTaskId(null);
             await onTasksChange();
         } catch (err) {
-            alert(err.message || "Failed to update task.");
+            addToast(err.message || "Failed to update task.", "error");
         } finally {
             setIsSaving(false);
         }
@@ -86,17 +90,18 @@ export function useTaskCrud(onTasksChange) {
             });
             await onTasksChange();
         } catch (err) {
-            alert(err.message || "Failed to update task.");
+            addToast(err.message || "Failed to update task.", "error");
         }
     };
 
     const deleteTask = async (id) => {
         try {
             await apiRequest(`/tasks/${id}`, { method: "DELETE" });
+            addToast("Task deleted successfully!", "success");
             setSelectedTaskId((currentId) => (currentId === id ? null : currentId));
             await onTasksChange();
         } catch (err) {
-            alert(err.message || "Failed to delete task.");
+            addToast(err.message || "Failed to delete task.", "error");
         }
     };
 
