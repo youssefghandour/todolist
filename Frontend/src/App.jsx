@@ -86,10 +86,6 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   });
 
-  if (sortOrder === "Oldest First") {
-    visibleTasks.reverse();
-  }
-
   return (
     <div>
       <Header

@@ -92,7 +92,7 @@ router.get('/tasks', async (req, res) => {
 
     if (sortBy === 'oldest') prismaSorting = { createdAt: 'asc' };
     if (sortBy === 'dueDate') prismaSorting = { dueDate: 'asc' };
-    if (sortBy === 'priority') prismaSorting = { priority: 'asc' };
+    if (sortBy === 'priority') prismaSorting = { priority: 'desc' }; // Assuming you want to sort by priority in descending order (high to low). Adjust as needed.
     if (sortBy === 'newest') prismaSorting = { createdAt: 'desc' };
 
     const tasks = await prisma.task.findMany({

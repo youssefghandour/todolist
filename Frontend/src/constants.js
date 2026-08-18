@@ -48,11 +48,17 @@ export const CATEGORY_LABELS = {
 export const SORT_OPTIONS = {
     NEWEST: "newest",
     OLDEST: "oldest",
+    DUE_DATE: "dueDate",
+    PRIORITY: "priority",
 };
 
 export const SORT_LABELS = {
     "Newest First": SORT_OPTIONS.NEWEST,
     "Oldest First": SORT_OPTIONS.OLDEST,
+    "Due Date": SORT_OPTIONS.DUE_DATE,
+    "By Due Date": SORT_OPTIONS.DUE_DATE,
+    "Priority": SORT_OPTIONS.PRIORITY,
+    "By Priority": SORT_OPTIONS.PRIORITY,
 };
 
 // Default values

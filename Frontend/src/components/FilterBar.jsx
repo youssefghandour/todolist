@@ -41,6 +41,8 @@ export default function FilterBar({
       <select className="filter-select" value={sortOrder} onChange={(e) => onSortChange(e.target.value)}>
         <option>Newest First</option>
         <option>Oldest First</option>
+        <option>Due Date</option>
+        <option>Priority</option>
       </select>
 
       <div className="filter-spacer"></div>
